@@ -27,7 +27,13 @@ function ManageFuelUsage(vehicle)
 	end
 
 	if IsVehicleEngineOn(vehicle) then
-		SetFuel(vehicle, GetVehicleFuelLevel(vehicle) - Config.FuelUsage[Round(GetVehicleCurrentRpm(vehicle), 1)] * (Config.Classes[GetVehicleClass(vehicle)] or 1.0) / 10)
+		local tankVolume = GetVehicleHandlingFloat(vehicle, 'CHandlingData', 'fPetrolTankVolume')
+		local currentFuel = (GetVehicleFuelLevel(vehicle) / 100) * tankVolume
+		local FuelUsage = Config.FuelUsage[Round(GetVehicleCurrentRpm(vehicle), 1)] / 10
+		local modifier = Config.Classes[GetVehicleClass(vehicle)]
+		local rpmbenzineusage = currentFuel - (FuelUsage * modifier)
+		local newFuelLevel = (rpmbenzineusage * 100) / tankVolume
+		SetFuel(vehicle, newFuelLevel)
 	end
 end
 
